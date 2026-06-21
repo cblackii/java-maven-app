@@ -1,4 +1,4 @@
-def buildApp() {
+def buildJar() {
     echo 'Building the application...'
     sh 'mvn package'
 }
