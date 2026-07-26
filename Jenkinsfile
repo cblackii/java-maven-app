@@ -1,49 +1,54 @@
 #!/usr/bin/env groovy
-library identifier: 'jenkins-shared-library@master', retriever: modernSCM(
-        [$class: 'GitSCMSource',
-        remote: 'https://gitlab.com/twn-devops-bootcamp/latest/08-jenkins/jenkins-shared-library.git',
-        credentialsId: 'gitlab-credentials'])
+
+library(
+    identifier: 'jenkins-shared-library@main',
+    retriever: modernSCM([
+        $class: 'GitSCMSource',
+        remote: 'https://github.com/cblackii/java-maven-app.git',
+        credentialsId: 'github-credentials'
+    ])
+)
 
 def gv
 
-pipeline {   
+pipeline {
     agent any
+
     tools {
         maven 'Maven'
     }
+
     stages {
-        stage("init") {
+        stage('Init') {
             steps {
                 script {
-                    gv = load "script.groovy"
+                    gv = load 'script.groovy'
                 }
             }
         }
 
-        stage("build jar") {
+        stage('Build JAR') {
             steps {
                 script {
-                    buildJar()
+                    gv.buildJar()
                 }
             }
         }
 
-        stage("build and push image") {
+        stage('Build Image') {
             steps {
                 script {
-                    buildImage 'nanatwn/demo-app:jma-3.0'
-                    dockerLogin()
-                    dockerPush 'nanatwn/demo-app:jma-3.0'
+                    gv.buildImage()
                 }
             }
         }
-        
-        stage("deploy") {
+
+        stage('Deploy') {
             steps {
                 script {
                     gv.deployApp()
                 }
             }
-        }               
+        }
     }
 }
